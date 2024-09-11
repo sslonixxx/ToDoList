@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<html>
+<head>
+    <meta name="viewport" content ="width=device-width, initial-scale=1">
+    <title> To-Do List</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="todoApp">
+            <h2> To-Do List <img src="images/checkList.png"></h2>
+            <div class="row">
+                <input type="text" id="inputBox" placeholder="Add your text">
+                <button id="addButton">Add</button>
+            </div>
+        <ul id="listContainer"></ul>
+        </div>
+        <div class="buttonBox">
+            <button id="saveButton">Save to JSON</button>
+            <button id="loadButton">Open JSON</button>
+        </div>
+       
+        <input type="file" id="fileInput" style="display: none;" accept=".json">
+
+    </div>
+<script src="script.js"></script>
+</body>
+</html>
