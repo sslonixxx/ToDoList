@@ -23,7 +23,7 @@ function saveToJsonFile() {
 }
 
 function loadJsonFile() {
-    fetch('http://localhost:8080/api/tasks', {
+    fetch('http://localhost:8081/api/tasks', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -42,7 +42,7 @@ function loadJsonFile() {
             newTodo.id = task.id;
             todoArray.push(newTodo);
             displayNewTodoItem(newTodo);
-            fetch(`http://localhost:8080/api/tasks/${newTodo.id}`, {
+            fetch(`http://localhost:8081/api/tasks/${newTodo.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -78,7 +78,7 @@ function addCaseToList() {
     inputBox.value = '';
 
     displayNewTodoItem(newTodo);
-    fetch('http://localhost:8080/api/tasks', {
+    fetch('http://localhost:8081/api/tasks', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -158,7 +158,7 @@ listContainer.addEventListener("click", function (e) {
         if (todoIndex > -1) {
             todoArray.splice(todoIndex, 1);
             li.remove();
-            fetch(`http://localhost:8080/api/tasks/${todoToDelete.id}`, {
+            fetch(`http://localhost:8081/api/tasks/${todoToDelete.id}`, {
                 method: 'DELETE'
             })
             .then(response => {
@@ -192,7 +192,7 @@ listContainer.addEventListener("click", function (e) {
                 if (todo) {
                     todo.description = newDescription;
                     descriptionSpan.textContent = newDescription;
-                    fetch(`http://localhost:8080/api/tasks/${todo.id}/description`, {
+                    fetch(`http://localhost:8081/api/tasks/${todo.id}/description`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
@@ -224,7 +224,7 @@ listContainer.addEventListener("click", function (e) {
             todo.isDone = !todo.isDone;
             li.classList.toggle("checked");
         }
-        fetch(`http://localhost:8080/api/tasks/${todo.id}/status`, {
+        fetch(`http://localhost:8081/api/tasks/${todo.id}/status`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
