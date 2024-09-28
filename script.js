@@ -170,6 +170,22 @@ listContainer.addEventListener("click", function (e) {
                 if (todo) {
                     todo.description = newDescription;
                     descriptionSpan.textContent = newDescription;
+    
+                    fetch(`http://localhost:8081/api/tasks/${todoId}/description`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ description: newDescription })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            console.error('Ошибка при обновлении описания:', response.status);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Ошибка при обновлении описания:', error);
+                    });
                 }
             }
             input.replaceWith(descriptionSpan);
