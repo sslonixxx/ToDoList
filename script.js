@@ -123,20 +123,6 @@ listContainer.addEventListener("click", function (e) {
         if (todoIndex > -1) {
             todoArray.splice(todoIndex, 1);
             li.remove();
-            fetch(`http://localhost:8081/api/tasks/${todoToDelete.id}`, {
-                method: 'DELETE'
-            })
-            .then(response => {
-                if (response.ok) {
-                    todoArray.splice(todoIndex, 1);
-                    li.remove();
-                } else {
-                    console.error('Ошибка при удалении задачи:', response.status);
-                }
-            })
-            .catch((error) => {
-                console.error('Ошибка при удалении задачи:', error);
-            });
         }
     } else if (e.target.tagName === "IMG" && e.target.classList.contains("edit-icon")) {
         const descriptionSpan = li.querySelector('.description-span');
@@ -157,21 +143,6 @@ listContainer.addEventListener("click", function (e) {
                 if (todo) {
                     todo.description = newDescription;
                     descriptionSpan.textContent = newDescription;
-                    fetch(`http://localhost:8081/api/tasks/${todo.id}/description`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(todo)
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            console.error('Ошибка при обновлении задачи:', response.status);
-                        }
-                    })
-                    .catch((error) => {
-                        console.error('Ошибка при обновлении задачи:', error);
-                    });
                 }
             }
             input.replaceWith(descriptionSpan);
@@ -189,20 +160,5 @@ listContainer.addEventListener("click", function (e) {
             todo.isDone = !todo.isDone;
             li.classList.toggle("checked");
         }
-        fetch(`http://localhost:8081/api/tasks/${todo.id}/status`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(todo)
-        })
-        .then(response => {
-            if (!response.ok) {
-                console.error('Ошибка при обновлении задачи:', response.status);
-            }
-        })
-        .catch((error) => {
-            console.error('Ошибка при обновлении задачи:', error);
-        });
     }
 }, false);
