@@ -22,6 +22,33 @@ function saveToJsonFile() {
     }
 }
 
+function loadFromJsonFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        try {
+            const loadedTodos = JSON.parse(e.target.result);
+            if (Array.isArray(loadedTodos)) {
+                todoArray = [];
+                loadedTodos.forEach(todo => {
+                    if (todo && typeof todo.description === 'string' && typeof todo.isDone === 'boolean') {
+                        todoArray.push(new Case(todo.description, todo.isDone));
+                        todoArray[todoArray.length - 1].id = todo.id;
+                    }
+                });
+                displayLoadedTodoList();
+            } else {
+                alert("Неправильная структура JSON файла!");
+            }
+        } catch (err) {
+            alert("Ошибка при загрузке файла!");
+            console.error(err);
+        }
+    };
+    reader.readAsText(file);
+}
 
 function addCaseToList() {
     const inputBox = document.getElementById("inputBox");
