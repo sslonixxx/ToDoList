@@ -22,47 +22,6 @@ function saveToJsonFile() {
     }
 }
 
-function loadJsonFile() {
-    fetch('http://localhost:8081/api/tasks', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Ошибка при загрузке задач: ' + response.status);
-        }
-        return response.json();
-    })
-    .then(data => {
-        todoArray = [];
-        data.forEach(task => {
-            const newTodo = new Case(task.description, task.isDone);
-            newTodo.id = task.id;
-            todoArray.push(newTodo);
-            displayNewTodoItem(newTodo);
-            fetch(`http://localhost:8081/api/tasks/${newTodo.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(newTodo)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    console.error('Ошибка при обновлении задачи:', response.status);
-                }
-            })
-            .catch((error) => {
-                console.error('Ошибка при обновлении задачи:', error);
-            });
-        });
-    })
-    .catch((error) => {
-        console.error(error);
-    });
-}
 
 function addCaseToList() {
     const inputBox = document.getElementById("inputBox");
@@ -78,7 +37,7 @@ function addCaseToList() {
     inputBox.value = '';
 
     displayNewTodoItem(newTodo);
-    fetch('http://localhost:8081/api/tasks', {
+    fetch('http://localhost:8081/api/tasks/create', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
