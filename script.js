@@ -44,13 +44,19 @@ function addCaseToList() {
         },
         body: JSON.stringify(newTodo)
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Ошибка при добавлении задачи: ' + response.statusText);
+        }
+        return response.text();
+    })
     .then(data => {
-        console.log('Задача успешно добавлена:', data);
+        console.log('Ответ от сервера:', data);
     })
     .catch((error) => {
         console.error('Ошибка при добавлении задачи:', error);
     });
+    
 }
 
 function displayNewTodoItem(todo) {
