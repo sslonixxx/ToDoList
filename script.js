@@ -22,32 +22,46 @@ function saveToJsonFile() {
     }
 }
 
-function loadFromJsonFile(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        try {
-            const loadedTodos = JSON.parse(e.target.result);
-            if (Array.isArray(loadedTodos)) {
-                todoArray = [];
-                loadedTodos.forEach(todo => {
-                    if (todo && typeof todo.description === 'string' && typeof todo.isDone === 'boolean') {
-                        todoArray.push(new Case(todo.description, todo.isDone));
-                        todoArray[todoArray.length - 1].id = todo.id;
-                    }
-                });
-                displayLoadedTodoList();
-            } else {
-                alert("Неправильная структура JSON файла!");
-            }
-        } catch (err) {
-            alert("Ошибка при загрузке файла!");
-            console.error(err);
+function loadJsonFile() {
+    fetch('http://localhost:8080/api/tasks', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
         }
-    };
-    reader.readAsText(file);
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Ошибка при загрузке задач: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        todoArray = [];
+        data.forEach(task => {
+            const newTodo = new Case(task.description, task.isDone);
+            newTodo.id = task.id;
+            todoArray.push(newTodo);
+            displayNewTodoItem(newTodo);
+            fetch(`http://localhost:8080/api/tasks/${newTodo.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newTodo)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Ошибка при обновлении задачи:', response.status);
+                }
+            })
+            .catch((error) => {
+                console.error('Ошибка при обновлении задачи:', error);
+            });
+        });
+    })
+    .catch((error) => {
+        console.error(error);
+    });
 }
 
 function addCaseToList() {
@@ -64,6 +78,20 @@ function addCaseToList() {
     inputBox.value = '';
 
     displayNewTodoItem(newTodo);
+    fetch('http://localhost:8080/api/tasks', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newTodo)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Задача успешно добавлена:', data);
+    })
+    .catch((error) => {
+        console.error('Ошибка при добавлении задачи:', error);
+    });
 }
 
 function displayNewTodoItem(todo) {
@@ -130,6 +158,20 @@ listContainer.addEventListener("click", function (e) {
         if (todoIndex > -1) {
             todoArray.splice(todoIndex, 1);
             li.remove();
+            fetch(`http://localhost:8080/api/tasks/${todoToDelete.id}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    todoArray.splice(todoIndex, 1);
+                    li.remove();
+                } else {
+                    console.error('Ошибка при удалении задачи:', response.status);
+                }
+            })
+            .catch((error) => {
+                console.error('Ошибка при удалении задачи:', error);
+            });
         }
     } else if (e.target.tagName === "IMG" && e.target.classList.contains("edit-icon")) {
         const descriptionSpan = li.querySelector('.description-span');
@@ -150,6 +192,21 @@ listContainer.addEventListener("click", function (e) {
                 if (todo) {
                     todo.description = newDescription;
                     descriptionSpan.textContent = newDescription;
+                    fetch(`http://localhost:8080/api/tasks/${todo.id}/description`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(todo)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            console.error('Ошибка при обновлении задачи:', response.status);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Ошибка при обновлении задачи:', error);
+                    });
                 }
             }
             input.replaceWith(descriptionSpan);
@@ -167,5 +224,20 @@ listContainer.addEventListener("click", function (e) {
             todo.isDone = !todo.isDone;
             li.classList.toggle("checked");
         }
+        fetch(`http://localhost:8080/api/tasks/${todo.id}/status`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(todo)
+        })
+        .then(response => {
+            if (!response.ok) {
+                console.error('Ошибка при обновлении задачи:', response.status);
+            }
+        })
+        .catch((error) => {
+            console.error('Ошибка при обновлении задачи:', error);
+        });
     }
 }, false);
