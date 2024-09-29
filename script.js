@@ -60,31 +60,38 @@ function addCaseToList() {
     }
 
     const newTodo = new Case(todoDescription);
-    todoArray.push(newTodo);
-    inputBox.value = '';
 
-    displayNewTodoItem(newTodo);
     fetch('http://localhost:8081/api/tasks/create', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(newTodo)
+        body: JSON.stringify({
+            description: newTodo.description, 
+            isDone: newTodo.isDone
+        })
     })
     .then(response => {
         if (!response.ok) {
             throw new Error('Ошибка при добавлении задачи: ' + response.statusText);
         }
-        return response.text();
+    
+        return response.json();
     })
-    .then(data => {
-        console.log('Ответ от сервера:', data);
+    .then(serverTask => {
+        newTodo.id = serverTask.id;
+
+        todoArray.push(newTodo);
+        inputBox.value = '';
+        displayNewTodoItem(newTodo);
+
+        console.log('Задача успешно добавлена:', serverTask);
     })
     .catch((error) => {
         console.error('Ошибка при добавлении задачи:', error);
     });
-    
 }
+
 
 function displayNewTodoItem(todo) {
     const todoListElement = document.getElementById('listContainer');
