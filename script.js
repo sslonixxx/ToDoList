@@ -152,13 +152,7 @@ listContainer.addEventListener("click", function (e) {
     const li = e.target.closest("li");
     const todoId = li.getAttribute('data-id');
 
-    if (e.target.tagName === "IMG" && e.target.classList.contains("delete-icon")) {
-        const todoIndex = todoArray.findIndex(todo => todo.id == todoId);
-        if (todoIndex > -1) {
-            todoArray.splice(todoIndex, 1);
-            li.remove();
-        }
-    } else if (e.target.tagName === "IMG" && e.target.classList.contains("edit-icon")) {
+    if (e.target.tagName === "IMG" && e.target.classList.contains("edit-icon")) {
         const descriptionSpan = li.querySelector('.description-span');
         const currentDescription = descriptionSpan.textContent;
 
@@ -170,14 +164,19 @@ listContainer.addEventListener("click", function (e) {
         descriptionSpan.replaceWith(input);
         input.focus();
 
+        let isEditing = true;
+
         const finishEditing = () => {
+            if (!isEditing) return; 
+            isEditing = false;
+
             const newDescription = input.value.trim();
             if (newDescription !== "") {
                 const todo = todoArray.find(todo => todo.id == todoId);
                 if (todo) {
                     todo.description = newDescription;
                     descriptionSpan.textContent = newDescription;
-    
+
                     fetch(`http://localhost:8081/api/tasks/${todoId}/description`, {
                         method: 'PUT',
                         headers: {
@@ -195,7 +194,10 @@ listContainer.addEventListener("click", function (e) {
                     });
                 }
             }
-            input.replaceWith(descriptionSpan);
+
+            if (input.parentNode) {
+                input.replaceWith(descriptionSpan);
+            }
         };
 
         input.addEventListener('blur', finishEditing);
@@ -204,11 +206,5 @@ listContainer.addEventListener("click", function (e) {
                 finishEditing();
             }
         });
-    } else if (e.target.tagName === "LI" || e.target.closest("li")) {
-        const todo = todoArray.find(todo => todo.id == todoId);
-        if (todo) {
-            todo.isDone = !todo.isDone;
-            li.classList.toggle("checked");
-        }
     }
 }, false);
