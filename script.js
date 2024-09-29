@@ -152,7 +152,27 @@ listContainer.addEventListener("click", function (e) {
     const li = e.target.closest("li");
     const todoId = li.getAttribute('data-id');
 
-    if (e.target.tagName === "IMG" && e.target.classList.contains("edit-icon")) {
+    if (e.target.tagName === "IMG" && e.target.classList.contains("delete-icon")) {
+        const todoIndex = todoArray.findIndex(todo => todo.id == todoId);
+        if (todoIndex > -1) {
+    
+            todoArray.splice(todoIndex, 1);
+            li.remove(); 
+
+            fetch(`http://localhost:8081/api/tasks/${todoId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Ошибка при удалении задачи:', response.status);
+                }
+            })
+            .catch((error) => {
+                console.error('Ошибка при удалении задачи:', error);
+            });
+        }
+    }
+    else if (e.target.tagName === "IMG" && e.target.classList.contains("edit-icon")) {
         const descriptionSpan = li.querySelector('.description-span');
         const currentDescription = descriptionSpan.textContent;
 
@@ -167,7 +187,7 @@ listContainer.addEventListener("click", function (e) {
         let isEditing = true;
 
         const finishEditing = () => {
-            if (!isEditing) return; 
+            if (!isEditing) return;
             isEditing = false;
 
             const newDescription = input.value.trim();
@@ -206,5 +226,28 @@ listContainer.addEventListener("click", function (e) {
                 finishEditing();
             }
         });
+    }
+    else if (e.target.tagName === "LI" || e.target.closest("li")) {
+        const todo = todoArray.find(todo => todo.id == todoId);
+        if (todo) {
+            todo.isDone = !todo.isDone;
+            li.classList.toggle("checked");
+
+            fetch(`http://localhost:8081/api/tasks/${todoId}/status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ isDone: todo.isDone })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Ошибка при обновлении статуса:', response.status);
+                }
+            })
+            .catch((error) => {
+                console.error('Ошибка при обновлении статуса:', error);
+            });
+        }
     }
 }, false);
