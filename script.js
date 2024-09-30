@@ -50,6 +50,30 @@ function loadFromJsonFile(event) {
     reader.readAsText(file);
 }
 
+function loadAllTasksFromServer() {
+    fetch('http://localhost:8081/api/tasks')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка при загрузке задач: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(tasks => {
+            todoArray = tasks.map(task => new Case(task.description, task.isDone));
+            todoArray.forEach(task => {
+                task.id = task.id; 
+                displayNewTodoItem(task);
+            });
+        })
+        .catch((error) => {
+            console.error('Ошибка при загрузке задач:', error);
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    loadAllTasksFromServer();
+});
+
 function addCaseToList() {
     const inputBox = document.getElementById("inputBox");
     const todoDescription = inputBox.value.trim();
