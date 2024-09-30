@@ -1,54 +1,17 @@
 class Case {
     constructor(description, isDone = false) {
-        this.id = Date.now();
         this.description = description;
         this.isDone = isDone;
+        this.id = null; 
+    }
+
+    setId(id) {
+        this.id = id;
     }
 }
+
 
 let todoArray = [];
-
-function saveToJsonFile() {
-    if (todoArray[0] != null) {
-        const jsonString = JSON.stringify(todoArray, null, 2);
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        var currentdate = new Date();
-        a.download = 'todoList ' + currentdate.getDate() + '.' + (currentdate.getMonth() + 1) + '.' + currentdate.getFullYear() + '.json';
-        a.click();
-        URL.revokeObjectURL(url);
-    }
-}
-
-function loadFromJsonFile(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        try {
-            const loadedTodos = JSON.parse(e.target.result);
-            if (Array.isArray(loadedTodos)) {
-                todoArray = [];
-                loadedTodos.forEach(todo => {
-                    if (todo && typeof todo.description === 'string' && typeof todo.isDone === 'boolean') {
-                        todoArray.push(new Case(todo.description, todo.isDone));
-                        todoArray[todoArray.length - 1].id = todo.id;
-                    }
-                });
-                displayLoadedTodoList();
-            } else {
-                alert("Неправильная структура JSON файла!");
-            }
-        } catch (err) {
-            alert("Ошибка при загрузке файла!");
-            console.error(err);
-        }
-    };
-    reader.readAsText(file);
-}
 
 function loadAllTasksFromServer() {
     fetch('http://localhost:8081/api/tasks')
@@ -59,10 +22,12 @@ function loadAllTasksFromServer() {
             return response.json();
         })
         .then(tasks => {
-            todoArray = tasks.map(task => new Case(task.description, task.isDone));
-            todoArray.forEach(task => {
-                task.id = task.id; 
-                displayNewTodoItem(task);
+            todoArray = [];
+            tasks.forEach(task => {
+                let newTask = new Case(task.description, task.isDone);
+                newTask.setId(task.id); 
+                todoArray.push(newTask);
+                displayNewTodoItem(newTask);
             });
         })
         .catch((error) => {
