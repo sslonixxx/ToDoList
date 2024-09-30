@@ -131,13 +131,8 @@ function displayLoadedTodoList() {
 }
 
 document.getElementById('addButton').addEventListener('click', addCaseToList);
-document.getElementById('saveButton').addEventListener('click', saveToJsonFile);
-document.getElementById('loadButton').addEventListener('click', () => {
-    document.getElementById('fileInput').click();
-});
-document.getElementById('fileInput').addEventListener('change', loadFromJsonFile);
 
-listContainer.addEventListener("click", function (e) {
+document.getElementById('listContainer').addEventListener("click", function (e) {
     const li = e.target.closest("li");
     const todoId = li.getAttribute('data-id');
 
