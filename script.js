@@ -10,7 +10,6 @@ class Case {
     }
 }
 
-
 let todoArray = [];
 
 function loadAllTasksFromServer() {
